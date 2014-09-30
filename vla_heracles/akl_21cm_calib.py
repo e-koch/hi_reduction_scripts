@@ -127,8 +127,9 @@ def calib_21cm(out_root=None,
     ### Reset Calibration ###
     #########################
 
-    if reset is True and quiet is False:
-        print "... clearing previous calibration"
+    if reset is True:
+        if quiet is False:
+            print "... clearing previous calibration"
         clearcal(vis=vis)
         os.system('rm -rf '+out_root+'.?cal'+'*')
 
@@ -275,7 +276,6 @@ def calib_21cm(out_root=None,
     # ... to the flux calibrator
 
     applycal(vis=vis, field=fluxcal, spw=spw_fluxcal,
-
              gaintable=[out_root+'.fcal', out_root+'.intphase.gcal',
                         out_root+'.bpcal'],
              interp=interpmode, gainfield=[fluxcal, fluxcal, bpcal],
