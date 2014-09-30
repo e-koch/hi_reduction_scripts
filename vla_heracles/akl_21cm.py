@@ -15,7 +15,6 @@ CASA.
 
 # python stuff
 import os
-import string
 
 # casa stuff
 from tasks import *
@@ -23,25 +22,27 @@ from taskinit import *
 import casac
 
 # my casa routines
-import casapy_util
-    
+# import casapy_util
+
 #############################
 ### Import data into CASA ###
 #############################
 
+
 def import_21cm(
-    out_root = None,
-    raw_files = None,
-    list_file = None,
-    import_mode = 'vla',
-    import_starttime = '',
-    import_stoptime = '',
-    import_scan = '',
-    import_spw = '',
-    import_timerange = '',
-    import_field = '',
+    out_root=None,
+    raw_files=None,
+    list_file=None,
+    quiet=False,
+    import_mode='vla',
+    import_starttime='',
+    import_stoptime='',
+    import_scan='',
+    import_spw='',
+    import_timerange='',
+    import_field='',
     log_file='import_21cm.log'
-    ):
+):
     """
     NAME
 
@@ -68,7 +69,7 @@ def import_21cm(
     line
 
     OPTIONAL INPUTS and DEFAULTs
-    
+
     quiet (False) : suppress print statements
 
     import_mode ('vla') : import procedure to use. Options are 'vla'
@@ -95,20 +96,20 @@ def import_21cm(
     casapy tricks from Josh Marvil and Miriam Krauss - Jun 2010
 
     Written - aleroy@nrao.edu - Sep 2010
-    
+
     """
 
     ### Error check ###
-    
-    if (out_root == None):
+
+    if out_root is None:
         print "Need to designate an output file via [out_root=]. Returning."
         return
 
-    if (raw_files == None) and (list_file == None):
+    if raw_files is None and list_file is None:
         print "Need inputs via [raw_files=] or [list_file=]. Returning."
         return
 
-    if (import_mode != 'vla') and (import_mode != 'uvfits'):
+    if import_mode != 'vla' and import_mode != 'uvfits':
         print "Invalid import_mode. Select 'vla' or 'uvfits'. Returning."
         return
 
@@ -117,8 +118,8 @@ def import_21cm(
     print "----------- import_21cm begins -----------"
 
     # reroute log output
-    orig_log_file = casalog.logfile()
-    casalog.setlogfile(log_file)
+    # orig_log_file = casalog.logfile()
+    # casalog.setlogfile(log_file)
 
     ### Set up input files ###
 
@@ -126,56 +127,58 @@ def import_21cm(
     vis = out_root + '.ms'
 
     # remove any previous versions
-    os.system('rm -rf '+out_root+'.ms*')
+    os.system('rm -rf ' + out_root + '.ms*')
 
     # if no file is input then read from a list of files
-    if raw_files==None:
-        raw_files_file=open(list_file,'r')
-        lines=raw_files_file.readlines()
+    if raw_files is None:
+        raw_files_file = open(list_file, 'r')
+        lines = raw_files_file.readlines()
         raw_files_list.close()
-        raw_files=[]
+        raw_files = []
         for line in lines:
-            line=line.strip()
+            line = line.strip()
             raw_files.append(line)
 
     ### Run import ###
 
-    if (import_mode == 'vla'):
+    if import_mode is 'vla':
         print "... importvla"
 
         importvla(vis=vis, archivefiles=raw_files,
                   starttime=import_starttime, stoptime=import_stoptime)
 
-    if (import_mode == 'uvfits'):
+    elif import_mode is 'uvfits':
         print "... importuvfits"
-        
+
         importuvfits(vis=vis, fitsfile=raw_files)
-        
+
     ### Use split to apply additional selections ###
-        
-    if (import_scan != '' or import_spw != '' or
-        import_timerange != '' or import_field != ''):
+
+    if import_scan != '' or import_spw != '' or \
+            import_timerange != '' or import_field != '':
 
         print "... split"
 
-        split(vis=vis, outputvis = vis+'.select',
-              scan = import_scan, timerange = import_timerange,
-              spw = import_spw, field = import_field)
+        split(vis=vis, outputvis=vis + '.select',
+              scan=import_scan, timerange=import_timerange,
+              spw=import_spw, field=import_field)
 
         # replace original ms with split version
-        os.system('rm -rf '+vis)
-        os.system('mv '+vis+'.select '+vis)
+        os.system('rm -rf ' + vis)
+        os.system('mv ' + vis + '.select ' + vis)
 
     ### Run listobs and copy the output to a text file ###
     print "...listobs"
 
-    casapy_util.listobs_to_file(vis,out_root+'.listobs.txt')
-    
+    listobs(vis)
+
+    # casapy_util.listobs_to_file(vis, out_root + '.listobs.txt')
+
     ### Save flags with the version tag "imported" ###
 
-    if (quiet == False):    
+    if quiet is False:
         print "...flagmanager"
-        
+
     flagmanager(vis=vis, mode='save', versionname='imported',
                 comment='flagging after import', merge='replace')
 
@@ -183,38 +186,47 @@ def import_21cm(
     print "------------ import_21cm ends ------------"
 
     # set log back to its original value
-    casalog.setlogfile(orig_log_file)
+    # casalog.setlogfile(orig_log_file)
 
     return
+
+
+def split_calibrators(out_root=None, scan_bp=None, scan_gain=None):
+    '''
+    If the same calibration source is used for all three calibrations, split
+    the scans into a new calibration table.
+    '''
+    pass
 
 ############################
 ### Calibrate a data set ###
 ############################
 
+
 def calib_21cm(
-    out_root = None,
-    source = None,
-    spw_source ='',
-    fluxcal = None,
-    spw_fluxcal ='',
-    fluxcal_uvrange = '',
-    phasecal = None,
+    out_root=None,
+    source=None,
+    spw_source='',
+    fluxcal=None,
+    spw_fluxcal='',
+    fluxcal_uvrange='',
+    phasecal=None,
     spw_phasecal='',
-    phasecal_uvrange = '',    
-    spw_map_bp_to_flux = [],
-    spw_map_bp_to_phase = [],
-    ref_spw_map = [-1],
-    spw_map_bp_to_source = [],
-    spw_map_phase_to_source = [],
-    bpcal = '',
-    spw_bpcal = None,
+    phasecal_uvrange='',
+    spw_map_bp_to_flux=[],
+    spw_map_bp_to_phase=[],
+    ref_spw_map=[-1],
+    spw_map_bp_to_source=[],
+    spw_map_phase_to_source=[],
+    bpcal='',
+    spw_bpcal=None,
     ref_ant='15',
     gaincurvecal=True,
-    interpmode=['linear','nearest'],
+    interpmode=['linear', 'nearest'],
     quiet=False,
     pause=False,
     reset=True
-    ):
+):
     """
     NAME
 
@@ -225,7 +237,7 @@ def calib_21cm(
     Calibrate a 21cm dataset.
 
     REQUIRED INPUTS and DEFAULTs
-    
+
     source (None) : name of the source
 
     spw_source (None) : spectral window selection for the source
@@ -246,7 +258,7 @@ def calib_21cm(
     interpmode (['linear','nearest']) : interpolation mode to use when
     applying calibration to source. First element refers to the gain
     calibration, second refers to the bandpass.
-    
+
     quiet (False) : suppress print statements
 
     reset (True) : deletes previous versions of the calibration
@@ -259,7 +271,7 @@ def calib_21cm(
     from the NGC2403 tutorial on the CASA web pages - Jun 2010
 
     Written - aleroy@nrao.edu - Sep 2010
-    
+
     """
 
     ### Defaults and error checking ###
@@ -269,71 +281,71 @@ def calib_21cm(
         return
 
     if ((source == None) or (phasecal == None) or
-        (fluxcal == None) or (bpcal == None)):
+            (fluxcal == None) or (bpcal == None)):
         print "Must specify source, phasecal, fluxcal, and bpcal. Returning."
         return
 
     ### Begin ###
-    
+
     print "----------- calib_21cm begins -----------"
 
     ### Define files ###
 
-    vis = out_root+'.ms'
-    
+    vis = out_root + '.ms'
+
     ### Reset Calibration ###
 
     if (reset == True):
         if (quiet == False):
             print "... clearing previous calibration"
-        
-        clearcal(vis=vis)        
-        os.system('rm -rf '+out_root+'.?cal'+'*')
+
+        clearcal(vis=vis)
+        os.system('rm -rf ' + out_root + '.?cal' + '*')
 
     ### Bandpass Calibration ###
-    
+
     if (quiet == False):
         print "... bandpass calibration"
 
     # a temporary per-integration phase calibration on the bpcal
-        
-    os.system("rm -rf "+out_root+".temp_bp_phase.gcal")
+
+    os.system("rm -rf " + out_root + ".temp_bp_phase.gcal")
     gaincal(vis=vis, field=bpcal, spw=spw_bpcal,
-            caltable=out_root+'.temp_bp_phase.gcal', gaincurve=gaincurvecal,
+            caltable=out_root + '.temp_bp_phase.gcal', #gaincurve=gaincurvecal,
             calmode='p', solint='int', minsnr=2.0, refant=ref_ant)
 
     # run the bandpass calibration
 
-    os.system("rm -rf "+out_root+".bpcal")
+    os.system("rm -rf " + out_root + ".bpcal")
     bandpass(vis=vis, field=bpcal, spw=spw_bpcal, selectdata=False,
-             caltable=out_root+'.bpcal', gaincurve=gaincurvecal,
-             gaintable=out_root+'.temp_bp_phase.gcal',
+             caltable=out_root + '.bpcal', #gaincurve=gaincurvecal,
+             gaintable=out_root + '.temp_bp_phase.gcal',
              solint='inf', solnorm=True, refant=ref_ant, bandtype='B')
 
     ### Phase calibration ###
 
     print "... solving for gain calibration in each scan."
 
-    os.system("rm -rf "+out_root+".gcal")
+    os.system("rm -rf " + out_root + ".gcal")
     gaincal(vis=vis, field=fluxcal, spw=spw_fluxcal,
             uvrange=fluxcal_uvrange, selectdata=True,
-            caltable=out_root+'.gcal', append=False,
-            gaintable=out_root+'.bpcal', gainfield=bpcal,
-            spwmap=spw_map_bp_to_flux, interp='nearest',            
-            gaincurve=gaincurvecal,
+            caltable=out_root + '.gcal', append=False,
+            gaintable=out_root + '.bpcal', gainfield=bpcal,
+            spwmap=spw_map_bp_to_flux, interp='nearest',
+            #gaincurve=gaincurvecal,
             solint='inf', minsnr=3.0, minblperant=2, refant=ref_ant)
 
     # loop over phase calibrators
-    phasecal_list=phasecal.split(',')
-    phasecal_uvrange_list=phasecal_uvrange.split(',')
+    phasecal_list = phasecal.split(',')
+    phasecal_uvrange_list = phasecal_uvrange.split(',')
 
-    for i in range(0,len(phasecal_list)):
+    for i in range(0, len(phasecal_list)):
         gaincal(vis=vis, field=phasecal_list[i], spw=spw_phasecal,
                 uvrange=phasecal_uvrange_list[i], selectdata=True,
-                caltable=out_root+'.gcal', append=True,
-                gaintable=out_root+'.bpcal', gainfield=bpcal,
+                caltable=out_root + '.gcal', append=True,
+                gaintable=out_root + '.bpcal', gainfield=bpcal,
                 spwmap=spw_map_bp_to_phase, interp='nearest',
-                gaincurve=gaincurvecal,
+                #gaincurve=gaincurvecal,
                 solint='inf', minsnr=3.0, minblperant=2, refant=ref_ant)
 
     ### Flux calibration ###
@@ -341,12 +353,12 @@ def calib_21cm(
     print "... setting flux of the primary calibrator."
 
     setjy(vis=vis, field=fluxcal, spw=spw_fluxcal)
-    
+
     print "... bootstrapping this flux to the secondary calibrator."
 
-    os.system("rm -rf "+out_root+".fcal")
-    fluxscale(vis=vis, caltable=out_root+'.gcal', transfer=phasecal,
-              fluxtable=out_root+'.fcal', reference=fluxcal,
+    os.system("rm -rf " + out_root + ".fcal")
+    fluxscale(vis=vis, caltable=out_root + '.gcal', transfer=phasecal,
+              fluxtable=out_root + '.fcal', reference=fluxcal,
               refspwmap=ref_spw_map)
 
     ### Apply calibration to the source ###
@@ -354,28 +366,29 @@ def calib_21cm(
     print "... applying calibration tables to source."
 
     applycal(vis=vis, field=source, spw=spw_source,
-             gaincurve=gaincurvecal,
-             gaintable=[out_root+'.fcal',out_root+'.bpcal'],
-             interp=interpmode, gainfield=[phasecal,bpcal],
+             #gaincurve=gaincurvecal,
+             gaintable=[out_root + '.fcal', out_root + '.bpcal'],
+             interp=interpmode, gainfield=[phasecal, bpcal],
              spwmap=[spw_map_phase_to_source, spw_map_bp_to_source])
 
     # Done!
 
     print "----------- calib_21cm ends -----------"
-    
+
     return
 
 ##############################################
 ### Apply basic autoflagging to a data set ###
 ##############################################
 
+
 def autoflag_21cm(
-    out_root = None,
-    edge_str = None,
-    edge_chan = None,
+    out_root=None,
+    edge_str=None,
+    edge_chan=None,
     reset=True,
     old_version='imported'
-    ):
+):
 
     ### Defaults and error checking ###
 
@@ -389,28 +402,28 @@ def autoflag_21cm(
 
     ### Define files ###
 
-    vis = out_root+'.ms'
+    vis = out_root + '.ms'
 
     ### Reset Flagging  ###
 
     if (reset == True):
-        print "... reseting flags to versionname = "+old_version        
+        print "... reseting flags to versionname = " + old_version
 
-        flagmanager(vis=vis,mode='restore',versionname=old_version)
+        flagmanager(vis=vis, mode='restore', versionname=old_version)
 
     ### Shadowing ###
 
-    print "... flagging shadowed data."       
-    flagdata(vis=vis,mode='shadow')
+    print "... flagging shadowed data."
+    flagdata(vis=vis, mode='shadow')
 
     ### Autocorrelations ###
 
-    print "... flagging autocorrelations"        
+    print "... flagging autocorrelations"
     flagautocorr(vis=vis)
 
     ### Edge Channels ###
 
-    # the user gives an explicit selection string        
+    # the user gives an explicit selection string
     if (edge_str != None):
         print "... flagging edge channels with user selection"
 
@@ -422,9 +435,9 @@ def autoflag_21cm(
         print "... flagging edge channels with automated selection"
 
         # call my "edge_channel_selection" script
-        spw_string = casapy_util.edge_chan_selection(vis=vis
-                                                   , edge_chan=edge_chan)
-        
+        # spw_string = casapy_util.edge_chan_selection(
+        #     vis=vis, edge_chan=edge_chan)
+
         flagdata(vis=vis, spw=spw_string, mode='manualflag',
                  flagbackup=False, selectdata=True)
 
@@ -435,7 +448,7 @@ def autoflag_21cm(
                 comment='flags after shadow, autocorr, edge.')
 
     # Done!
-    
+
     return
 
 #########################################
