@@ -261,25 +261,32 @@ def calib_21cm(out_root=None,
 
     applycal(vis=vis, field=source, spw=spw_source,
              gaintable=[out_root+'.fcal', out_root+'.scanphase.gcal',
-                        out_root+'.bpcal'],
-             interp=interpmode, gainfield=[phasecal, phasecal, bpcal],
+                        out_root+'.bpcal', out_root+".gaincurve"],
+             interp=interpmode, gainfield=[phasecal, phasecal, bpcal, ''],
              spwmap=[spw_map_phase_to_source, spw_map_bp_to_source])
 
     # ... to the phase calibrator
 
     applycal(vis=vis, field=phasecal, spw=spw_phasecal,
              gaintable=[out_root+'.fcal', out_root+'.intphase.gcal',
-                        out_root+'.bpcal'],
-             interp=interpmode, gainfield=[phasecal, phasecal, bpcal],
+                        out_root+'.bpcal', out_root+".gaincurve"],
+             interp=interpmode, gainfield=[phasecal, phasecal, bpcal, ''],
              spwmap=[[], [], spw_map_bp_to_phase])
 
     # ... to the flux calibrator
 
     applycal(vis=vis, field=fluxcal, spw=spw_fluxcal,
              gaintable=[out_root+'.fcal', out_root+'.intphase.gcal',
-                        out_root+'.bpcal'],
-             interp=interpmode, gainfield=[fluxcal, fluxcal, bpcal],
+                        out_root+'.bpcal', out_root+".gaincurve"],
+             interp=interpmode, gainfield=[fluxcal, fluxcal, bpcal, ''],
              spwmap=[[], [], spw_map_bp_to_flux])
+
+    if fluxcal != bpcal:
+        applycal(vis=vis, field=bpcal,
+                 gaintable=[out_root+'.fcal', out_root+'.intphase.gcal',
+                            out_root+'.bpcal', out_root+".gaincurve"],
+                 gainfield=[phasecal, phasecal, bpcal, ''],
+                 calwt=False)
 
     # Done!
 
