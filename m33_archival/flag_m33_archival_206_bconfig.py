@@ -5,19 +5,26 @@ Data Flagging for M33 archival VLA data - B config
 
 import sys
 
+from tasks import *
+from taskinit import *
+import casac
+
 set_num = int(sys.argv[1])
 
-if set_num == 1:
-    pass
+vis = "M33_206_B_"+str(set_num)
 
+if set_num == 1:
+    flagdata(vis=vis, antenna='26')
 elif set_num == 2:
-    pass
+    flagdata(vis=vis, spw='0')
+    flagdata(vis=vis, antenna='13, 15')
 
 elif set_num == 3:
-    pass
+    flagdata(vis=vis, antenna='28')
+    # flagdata(vis=vis, spw='0', antenna='5')
 
 elif set_num == 4:
-    pass
+    flagdata(vis=vis, antenna='16')
 
 elif set_num == 5:
     pass

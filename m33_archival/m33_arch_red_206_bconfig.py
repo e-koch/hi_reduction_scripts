@@ -26,11 +26,11 @@ execfile(
 # CONTROL FLOW
 # &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 do_load = False
-do_flag = True
-do_calib = True
-do_inspectcal = True
+do_flag = False
+do_calib = False
+do_inspectcal = False
 do_inspect = False
-do_split = False
+do_split = True
 
 # &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 # DEFINITIONS
@@ -68,12 +68,15 @@ if do_load:
     # SO I'm going to split the data set up, change the field names of the
     # standard, then concatenate it all back together. Maybe this will work
 
+    pre_loaded = False
+
     for i, raws in enumerate(raw_splits):
 
         print "Importing %s/%s" % (i+1, len(raw_splits))
 
-        import_21cm(out_root="M33_206_B_orig_"+str(i+1),
-                    raw_files=raws)
+        if not pre_loaded:
+            import_21cm(out_root="M33_206_B_orig_"+str(i+1),
+                        raw_files=raws)
 
         orig_vis = "M33_206_B_orig_"+str(i+1)+".ms"
 
@@ -125,18 +128,23 @@ if do_flag:
 
     for i in range(1, 7):
 
+        if i == 2:
+            continue
+
         # Does autoflagging of general problem areas, including edge channels
         autoflag_21cm(out_root=out_root+str(i),
                       edge_str="0~1:0~20;225~254",
                       reset=True)
 
         execfile(
-            "/Users/eric/Dropbox/code_development/m33_code/hi_reduction_scripts/m33_archival/flag_m33_archival.py",
-            i)
+            "/Users/eric/Dropbox/code_development/m33_code/hi_reduction_scripts/m33_archival/flags_206_B/flag_m33_206_b_"+str(i)+".py")
 
 if do_calib:
 
     for i in range(1, 7):
+
+        if i == 2:
+            continue
 
         vis = out_root + str(i) + ".ms"
 
@@ -153,10 +161,16 @@ if do_inspectcal:
 
     for i in range(1, 7):
 
+        if i == 2:
+            continue
 
         print ""
         print "Inspecting Calibration Tables for " + out_root + str(i)
         print ""
+
+        interactive = False
+
+        vis = out_root + str(i) + ".ms"
 
         # get the list of antennas
         tb.open(vis+"/ANTENNA")
@@ -186,6 +200,8 @@ if do_inspectcal:
                     plotsymbol='o', subplot=111,
                     antenna=ant,
                     figfile=outdir + "bphase_" + ant + ".png")
+            if interactive:
+                raw_input("Continue?")
             plotcal(caltable=caltable,
                     xaxis="freq",
                     yaxis="amp",
@@ -194,6 +210,8 @@ if do_inspectcal:
                     plotsymbol='o', subplot=111,
                     antenna=ant,
                     figfile=outdir + "bpamp_" + ant + ".png")
+            if interactive:
+                raw_input("Continue?")
 
         for spw in spw_list:
             plotcal(caltable=caltable,
@@ -204,6 +222,8 @@ if do_inspectcal:
                     plotsymbol='o', subplot=111,
                     spw=spw,
                     figfile=outdir + "amp_vs_chan_spw" + spw + ".png")
+            if interactive:
+                raw_input("Continue?")
 
         caltable = out_root + str(i) + ".scanphase.gcal"
         outdir = caltable + ".plots/"
@@ -219,6 +239,8 @@ if do_inspectcal:
                     plotsymbol='o', subplot=111,
                     antenna=ant,
                     figfile=outdir + "phase_" + ant + ".png")
+            if interactive:
+                raw_input("Continue?")
 
         caltable = out_root + str(i) + ".fcal"
         outdir = caltable + ".plots/"
@@ -234,10 +256,15 @@ if do_inspectcal:
                     plotsymbol='o', subplot=111,
                     antenna=ant,
                     figfile=outdir + "flux_" + ant + ".png")
+            if interactive:
+                raw_input("Continue?")
 
 if do_inspect:
 
     for i in range(1, 7):
+
+        if i == 2:
+            continue
 
         vis = out_root + str(i) + ".ms"
 
@@ -260,6 +287,18 @@ if do_inspect:
                ydatacolumn="corrected",
                field=cals)
         print "Amplitude-frequency"
+        ch = raw_input("Hit a key to continue.")
+
+        plotms(vis=vis,
+               iteraxis="field",
+               xaxis="frequency",
+               yaxis="phase",
+               avgtime="1e8",
+               averagedata=True,
+               avgscan=True,
+               ydatacolumn="corrected",
+               field=cals)
+        print "Phase-frequency"
         ch = raw_input("Hit a key to continue.")
 
         plotms(vis=vis,
@@ -289,10 +328,21 @@ if do_split:
 
     for i in range(1, 7):
 
+        if i == 2:
+            continue
+
         print 'Splitting off calibrated data'
 
         os.system('rm -rf '+out_root+str(i)+'.split')
 
         split(vis=out_root+str(i)+".ms",
               outputvis=out_root+str(i)+".split", field="M33*",
-              datacolumn='corrected', keepflags=False)
+              datacolumn='corrected', keepflags=True)
+
+    print 'Now combining all reduced data into one set.'
+
+    # If you don't delete, it concatenates onto the existing one.
+    os.system('rm -rf M33_bconfig_all.split')
+
+    concat(vis=glob.glob("M33*.split"), concatvis='M33_bconfig_all.split',
+           timesort=True, freqtol='10MHz')

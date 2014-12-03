@@ -27,9 +27,9 @@ execfile(
 # &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
 do_load = False
 do_flag = False
-do_calib = True
-do_inspectcal = True
-do_inspect = True
+do_calib = False
+do_inspectcal = False
+do_inspect = False
 do_split = True
 
 # &%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%&%
@@ -105,7 +105,7 @@ if do_flag:
     autoflag_21cm(out_root='M33', edge_str="0~1:0~20;225~254", reset=True)
 
     execfile(
-        "/Users/eric/Dropbox/code_development/m33_code/hi_reduction_scripts/m33_archival/flag_m33_archival_206_cband.py")
+        "/Users/eric/Dropbox/code_development/m33_code/hi_reduction_scripts/m33_archival/flag_m33_archival_206_cconfig.py")
 
 if do_calib:
 
