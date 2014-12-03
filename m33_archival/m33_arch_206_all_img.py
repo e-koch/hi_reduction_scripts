@@ -14,11 +14,19 @@ import casac
 vis = "M33_b_c.ms"
 out_root = 'M33_206_b_c'
 
-
+combine_configs = False
 do_dirtyimage = False
 do_clean_1chan = True
 do_clean = False
 do_export = False
+
+if combine_configs:
+    print("Combining the reduced B and C configuration data.")
+
+    concat(vis=["../b_config/M33_bconfig_all.split.contsub",
+                "../c_config/M33.split.contsub"],
+           concatvis=vis,
+           timesort=True, freqtol='10MHz')
 
 if do_dirtyimage:
     # First creates a dirty cube to examine
