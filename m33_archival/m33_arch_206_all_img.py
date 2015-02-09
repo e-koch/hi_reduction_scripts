@@ -37,7 +37,7 @@ if do_dirtyimage:
 
     clean(vis=vis, imagename=out_root+'.dirty', restfreq='1420.40575177MHz',
           mode='channel', width=1, nchan=205, start=10,
-          cell='1.5arcsec', multiscale=[0, 3, 8, 27, 200],
+          cell='1.5arcsec', multiscale=[0, 3, 9, 27, 200],
           imsize=[4096, 4096], weighting='natural', robust=0.0, niter=0,
           pbcor=False, interpolation='linear', usescratch=True,
           phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio')
@@ -48,16 +48,28 @@ if do_clean_1chan:
 
     # For multiscale, 1 pixel = 3 arcsec
 
-    mask = '../../../Arecibo/M33_cent_chan.image'
+    model = '../../../Arecibo/M33_cent_chan.image'
+    mask = '../../../Arecibo/tester.mask'
 
-    clean(vis=vis, imagename=out_root+'.cent_chan_arecibomask', field='M33*',
-          restfreq='1420.40575177MHz', mode='velocity', nterms=1, mask=mask,
+    clean(vis=vis, imagename=out_root+'.cent_chan_masktest', field='M33*',
+          restfreq='1420.40575177MHz', mode='velocity', nterms=1,
           width='1.288km/s', nchan=1, start='-200km/s', cell='1.5arcsec',
-          imsize=[4096, 4096], weighting='natural', niter=20000,
+          imsize=[4096, 4096], weighting='natural', niter=0,
           threshold='2.0mJy/beam', imagermode='mosaic',
           multiscale=[0, 3, 9, 27, 200], interactive=False,
           pbcor=False, interpolation='linear', usescratch=True,
-          phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio')
+          phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio',
+          outframe='LSRK', modelimage=model, mask=mask)
+
+    # clean(vis=vis, imagename=out_root+'.cent_chan_arecibomodel', field='M33*',
+    #       restfreq='1420.40575177MHz', mode='velocity', nterms=1,
+    #       width='1.288km/s', nchan=1, start='-200km/s', cell='1.5arcsec',
+    #       imsize=[4096, 4096], weighting='natural', niter=1000,
+    #       threshold='2.0mJy/beam', imagermode='mosaic',
+    #       multiscale=[0, 3, 9, 27, 200], interactive=False,
+    #       pbcor=False, interpolation='linear', usescratch=True,
+    #       phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio',
+    #       outframe='LSRK', modelimage=model, mask=mask)
 
 if do_clean:
 
