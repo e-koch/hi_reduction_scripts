@@ -9,10 +9,9 @@ Requires that the pipeline namespace be populated.
 import os
 import sys
 
-ms_folder = str(sys.argv[1])
+ms_folder = str(sys.argv[5])
 
 # Repopulate namespace
-vos = "vos/VLA/14B-088/code/"
 execfile("EVLA_pipeline1.3.0/EVLA_pipe_restore.py")
 
 ms_active = ms_folder
