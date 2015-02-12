@@ -5,7 +5,7 @@ echo 'Sourcing'
 source /home/ekoch/.bashrc
 
 # Make sure we're on the right branch
-mv /home/ekoch/code_repos/hi_reduction_scripts
+cd /home/ekoch/code_repos/hi_reduction_scripts
 git checkout EVLA_pipeline
 
 # Specify MSfile
