@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #PBS -S /bin/bash
-#PBS -l pmem=4000m
+#PBS -l pmem=8000m
 #PBS -l nodes=1:ppn=12
-#PBS -l walltime=3:00:00
+#PBS -l walltime=24:00:00
 #PBS -m bea
 #PBS -M koch.eric.w@gmail.com
 #PBS -l epilogue=/home/ekoch/code_repos/simscript/epilogue.sh
