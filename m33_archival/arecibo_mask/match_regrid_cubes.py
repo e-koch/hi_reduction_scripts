@@ -120,4 +120,4 @@ if __name__ == '__main__':
     file2 = str(sys.argv[2])
     save_name = str(sys.argv[3])
 
-    match_regrid(file1, file2, save_output=True, save_name=)
+    match_regrid(file1, file2, save_output=True, save_name=save_name)
