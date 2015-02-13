@@ -11,5 +11,5 @@
 source /home/ekoch/.bashrc
 
 echo "Starting at: `date`"
-source casa_batch_extra_calplots_jasper.bash
+source code_repos/hi_reduction_scripts/m33_evla/Jasper\ scripts/casa_batch_extra_calplots_jasper.bash
 echo "Exited with code $? at: `date`"
