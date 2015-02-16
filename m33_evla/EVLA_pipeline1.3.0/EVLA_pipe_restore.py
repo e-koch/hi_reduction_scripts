@@ -33,6 +33,7 @@ Script that Restores all variables needed by the pipeline into the global namesp
 '''
 
 import shelve
+import sys
 
 #This is the default time-stamped casa log file, in case we
 #    need to return to it at any point in the script
@@ -60,12 +61,12 @@ if not os.path.exists(timing_file):
     timelog=open(timing_file,'w')
 else:
     timelog=open(timing_file,'a')
-    
+
 def runtiming(pipestate, status):
     '''Determine profile for a given state/stage of the pipeline
     '''
     time_list.append({'pipestate':pipestate, 'time':time.time(), 'status':status})
-    
+
     if (status == "end"):
         timelog=open(timing_file,'a')
         timelog.write(pipestate+': '+str(time_list[-1]['time'] - time_list[-2]['time'])+' sec \n')
@@ -76,13 +77,13 @@ def runtiming(pipestate, status):
         #    casalogfile.write(tempfile.read())
         #    tempfile.close()
         #casalogfile.close()
-        
-    
+
+
     return time_list
 
 
 def pipeline_restore(shelf_filename='pipeline_shelf.restore'):
-    '''Restore the state of the pipeline from shelf file 
+    '''Restore the state of the pipeline from shelf file
     '''
     if os.path.exists(shelf_filename):
         try:
@@ -99,6 +100,13 @@ def pipeline_restore(shelf_filename='pipeline_shelf.restore'):
 
         pipe_shelf.close()
 
+# Optional set pipepath
+
+try:
+    print pipepath
+except:
+    pipepath = str(sys.argv[1])
+
 #Restore all variables to the global namespace and then run 'startup'
 #  to load all functions and modules needed for the pipeline
 try:
@@ -106,7 +114,7 @@ try:
     pipeline_restore()
     maincasalog = casalogger.func_globals['thelogfile']
     execfile(pipepath+'EVLA_pipe_startup.py')
-    
+
 
 except Exception, e:
     logprint ("Exiting script: "+str(e))

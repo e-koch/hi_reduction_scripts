@@ -8,11 +8,13 @@ Requires that the pipeline namespace be populated.
 
 import os
 import sys
+import subprocess
+
 
 ms_folder = str(sys.argv[5])
 
 # Repopulate namespace
-execfile("EVLA_pipeline1.3.0/EVLA_pipe_restore.py")
+subprocess(["EVLA_pipeline1.3.0/EVLA_pipe_restore.py", os.getcwd()])
 
 ms_active = ms_folder
 
