@@ -7,20 +7,16 @@ Requires that the pipeline namespace be populated.
 '''
 
 import os
-import sys
-import subprocess
 
-
-ms_folder = str(sys.argv[5])
 
 # Repopulate namespace
-subprocess(["EVLA_pipeline1.3.0/EVLA_pipe_restore.py", os.getcwd()])
+exec_file("EVLA_pipeline1.3.0/EVLA_pipe_restore.py")
 
 ms_active = ms_folder
 
 # UV plots per SPW
 for ii in field_ids:
-    for jj in field_spws:
+    for jj in field_spws[ii]:
         print ii, jj
         default('plotms')
         vis = ms_active
