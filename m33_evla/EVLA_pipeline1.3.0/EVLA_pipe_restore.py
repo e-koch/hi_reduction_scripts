@@ -100,13 +100,6 @@ def pipeline_restore(shelf_filename='pipeline_shelf.restore'):
 
         pipe_shelf.close()
 
-# Optional set pipepath
-
-try:
-    print pipepath
-except:
-    pipepath = str(sys.argv[1])
-
 #Restore all variables to the global namespace and then run 'startup'
 #  to load all functions and modules needed for the pipeline
 try:
