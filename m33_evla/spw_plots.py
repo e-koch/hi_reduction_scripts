@@ -10,7 +10,7 @@ import os
 
 
 # Repopulate namespace
-exec_file("EVLA_pipeline1.3.0/EVLA_pipe_restore.py")
+execfile("EVLA_pipeline1.3.0/EVLA_pipe_restore.py")
 
 ms_active = ms_folder
 
