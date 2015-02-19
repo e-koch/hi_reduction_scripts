@@ -12,8 +12,6 @@ import os
 # Repopulate namespace
 execfile("EVLA_pipeline1.3.0/EVLA_pipe_restore.py")
 
-ms_active = ms_folder
-
 # UV plots per SPW
 for ii in field_ids:
     for jj in field_spws[ii]:
