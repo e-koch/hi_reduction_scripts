@@ -6,7 +6,7 @@ RunAsOwner = True
 
 transfer_output_files = /dev/null
 
-Executable = canfar_arecibo_regrid.bash
+Executable = code_repos/hi_reduction_scripts/m33_archival/cluster_scripts/canfar_arecibo_regrid.bash
 
 Arguments = canfar_arecibo_regrid
 Log = canfar_arecibo_regrid.log
