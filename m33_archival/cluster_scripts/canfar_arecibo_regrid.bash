@@ -10,7 +10,7 @@ mkdir -p ${TMPDIR}/{vos,vos_cache,proc,vos_link}
 
 # Mount VOSpace
 echo "Mount VOS in readonly mode"
-mountvofs --vospace vos:MWSynthesis/ --mountpoint ${TMPDIR}/vos --ca$
+mountvofs --vospace vos:MWSynthesis/ --mountpoint ${TMPDIR}/vos #--ca$
 
 # Copy the necessary code
 cd ${TMPDIR}/proc
@@ -36,7 +36,7 @@ rm -rf hi_reduction_scripts
 echo 'Unmount VOS'
 fusermount -zu ${TMPDIR}/vos
 echo 'Mount VOS'
-mountvofs --vospace vos:MWSynthesis/VLA/archival --mountpoint ${TMPDIR}/vos --ca$
+mountvofs --vospace vos:MWSynthesis/VLA/archival --mountpoint ${TMPDIR}/vos #--ca$
 echo 'Copy files to VOS'
 cp -rf ${TMPDIR}/proc/* ${TMPDIR}/vos/
 echo 'Unmount VOS'

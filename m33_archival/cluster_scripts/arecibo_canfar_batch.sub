@@ -1,14 +1,13 @@
 Universe   = vanilla
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT_OR_EVICT
-environment = "HOME=/home/centos"
+environment = "HOME=/home/ekoch"
 RunAsOwner = True
 
 transfer_output_files = /dev/null
 
 Executable = code_repos/hi_reduction_scripts/m33_archival/cluster_scripts/canfar_arecibo_regrid.bash
 
-Arguments = canfar_arecibo_regrid
 Log = canfar_arecibo_regrid.log
 Output = canfar_arecibo_regrid.out
 Error = canfar_arecibo_regrid.err

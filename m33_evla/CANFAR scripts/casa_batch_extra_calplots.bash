@@ -10,7 +10,7 @@ mkdir -p ${TMPDIR}/{vos,vos_cache,proc,vos_link}
 
 # Mount VOSpace
 echo "Mount VOS in readonly mode"
-mountvofs --vospace vos:MWSynthesis/VLA/14B-088/ --mountpoint ${TMPDIR}/vos --ca$
+mountvofs --vospace vos:MWSynthesis/VLA/14B-088/ --mountpoint ${TMPDIR}/vos #--ca$
 
 # Load in casa pointer
 echo Sourcing
@@ -40,7 +40,7 @@ casapy --nogui --nologger -c spw_plots.py full_path
 echo 'Unmount VOS'
 fusermount -zu ${TMPDIR}/vos
 echo 'Mount VOS'
-mountvofs --vospace vos:MWSynthesis/VLA/14B-088/$ms_folder --mountpoint ${TMPDIR}/vos --ca$
+mountvofs --vospace vos:MWSynthesis/VLA/14B-088/$ms_folder --mountpoint ${TMPDIR}/vos #--ca$
 echo 'Copy files to VOS'
 cp -rf ${TMPDIR}/proc/* ${TMPDIR}/vos/
 echo 'Unmount VOS'

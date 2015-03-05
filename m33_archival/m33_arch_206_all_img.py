@@ -15,8 +15,9 @@ vis = "M33_b_c.ms"
 out_root = 'M33_206_b_c'
 
 combine_configs = False
-do_dirtyimage = False
-do_clean_1chan = True
+do_cvel = False
+do_dirtyimage = True
+do_clean_1chan = False
 do_clean = False
 do_export = False
 
@@ -28,6 +29,15 @@ if combine_configs:
            concatvis=vis,
            timesort=True, freqtol='10MHz')
 
+if do_cvel:
+
+    os.system('rm -rf '+out_root+'.cvel')
+    cvel(vis=vis, outputvis=out_root+'.cvel', mode='channel',
+         nchan=-1, start=0, width=1, restfreq='1420.40575177MHz',
+         outframe='LSRK', phasecenter='J2000 01h33m50.904 +30d39m35.79')
+
+    vis = out_root+'.cvel'
+
 if do_dirtyimage:
     # First creates a dirty cube to examine
 
@@ -37,10 +47,11 @@ if do_dirtyimage:
 
     clean(vis=vis, imagename=out_root+'.dirty', restfreq='1420.40575177MHz',
           mode='channel', width=1, nchan=205, start=10,
-          cell='1.5arcsec', multiscale=[0, 3, 9, 27, 200],
+          cell='1.5arcsec', multiscale=[0], #, 3, 9, 27, 200],
           imsize=[4096, 4096], weighting='natural', robust=0.0, niter=0,
-          pbcor=False, interpolation='linear', usescratch=True,
-          phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio')
+          pbcor=True, interpolation='linear', usescratch=True,
+          phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio',
+          outframe='LSRK')
 
 if do_clean_1chan:
 
