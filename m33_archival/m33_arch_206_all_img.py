@@ -11,8 +11,14 @@ from taskinit import *
 import casac
 
 
+vis_path = 'VLA/archival/'
 vis = "M33_b_c.ms"
 out_root = 'M33_206_b_c'
+
+
+mod_path = 'Arecibo/'
+model = 'M33_model.image'
+mask = 'M33_mask.image'
 
 combine_configs = False
 do_cvel = False
@@ -45,13 +51,14 @@ if do_dirtyimage:
 
     os.system('rm -rf '+out_root+'.dirty*')
 
-    clean(vis=vis, imagename=out_root+'.dirty', restfreq='1420.40575177MHz',
+    clean(vis=vis, imagename=out_root+'.dirty_mask_model', restfreq='1420.40575177MHz',
           mode='channel', width=1, nchan=205, start=10,
-          cell='1.5arcsec', multiscale=[0], #, 3, 9, 27, 200],
+          cell='1.5arcsec', multiscale=[0, 3, 9, 27, 200],
+          threshold='2.0mJy/beam', imagermode='mosaic',
           imsize=[4096, 4096], weighting='natural', robust=0.0, niter=0,
           pbcor=True, interpolation='linear', usescratch=True,
           phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio',
-          outframe='LSRK')
+          outframe='LSRK', modelimage=model, mask=mask)
 
 if do_clean_1chan:
 
@@ -59,10 +66,7 @@ if do_clean_1chan:
 
     # For multiscale, 1 pixel = 3 arcsec
 
-    model = '../../../Arecibo/M33_cent_chan.image'
-    mask = '../../../Arecibo/tester.mask'
-
-    clean(vis=vis, imagename=out_root+'.cent_chan_masktest', field='M33*',
+    clean(vis=vis, imagename=out_root+'.cent_chan', field='M33*',
           restfreq='1420.40575177MHz', mode='velocity', nterms=1,
           width='1.288km/s', nchan=1, start='-200km/s', cell='1.5arcsec',
           imsize=[4096, 4096], weighting='natural', niter=0,
@@ -88,17 +92,15 @@ if do_clean:
 
     os.system('rm -rf '+out_root+'.clean')
 
-    mask = '../../../Arecibo/M33_cent_chan.image'
-
-    clean(vis=vis, imagename=out_root+'.clean', mask=mask, field='M33*',
-          restfreq='1420.40575177MHz', mode='velocity',
-          width='1.288km/s', nchan=205, start='-339.104km/s', cell='1.5arcsec',
-          imsize=[2048, 2048], weighting='briggs', robust=0.0, niter=500,
+    clean(vis=vis, imagename=out_root+'.clean', field='M33*',
+          restfreq='1420.40575177MHz',
+          mode='channel', width=1, nchan=205, start=10,
+          cell='1.5arcsec', multiscale=[0, 3, 9, 27, 200],
           threshold='2.0mJy/beam', imagermode='mosaic',
-          multiscale=[0, 3, 9, 27, 200],
-          pbcor=False, interpolation='linear', usescratch=True,
+          imsize=[4096, 4096], weighting='natural', robust=0.0, niter=5000,
+          pbcor=True, interpolation='linear', usescratch=True,
           phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio',
-          outframe='LSRK')
+          outframe='LSRK', modelimage=model, mask=mask)
 
 if do_export:
 
